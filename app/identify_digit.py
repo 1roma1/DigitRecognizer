@@ -21,7 +21,7 @@ class IdentifyDigit(QMainWindow):
         self.centralWidget.setLayout(self.layout)
         self.setUI()
 
-        self.model = load_model('models/mnist.h5')
+        self.model = load_model('model/model.h5')
 
     def setUI(self):
         self.layout1 = QVBoxLayout()
