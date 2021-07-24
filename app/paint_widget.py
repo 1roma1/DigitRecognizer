@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-import cv2
 import numpy as np
 
-class WidgetPaint(QWidget):
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QImage, QPainter, QPen
+from PyQt5.QtCore import QPoint, Qt
+
+class PaintWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
@@ -37,26 +37,19 @@ class WidgetPaint(QWidget):
         canvasPainter = QPainter(self)
         canvasPainter.drawImage(self.rect(), self.image, self.image.rect())
 
-    def return_image(self):
-        cv2.imwrite('digit.png', self.QImageToCvMat(self.image))
+    def grabImage(self):
+        '''  Converts a QImage into an opencv MAT format  '''
+
+        image = self.image.convertToFormat(QImage.Format.Format_RGBA8888)
+
+        width = image.width()
+        height = image.height()
+
+        ptr = image.bits()
+        ptr.setsize(height * width * 4)
+        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
+        return arr
 
     def clear(self):
         self.image.fill(Qt.white)
         self.update()
-    
-    def save(self):
-        self.image.save("digit.png")
-
-    def QImageToCvMat(self,incomingImage):
-        '''  Converts a QImage into an opencv MAT format  '''
-
-        incomingImage = \
-           incomingImage.convertToFormat(QImage.Format.Format_RGBA8888)
-
-        width = incomingImage.width()
-        height = incomingImage.height()
-
-        ptr = incomingImage.bits()
-        ptr.setsize(height * width * 4)
-        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
-        return arr

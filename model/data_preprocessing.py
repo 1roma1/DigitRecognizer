@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 
 def preproc_mnist():
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
@@ -14,7 +13,7 @@ def preproc_mnist():
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
 
-    y_train = keras.utils.to_categorical(y_train, num_classes=None)
-    y_test = keras.utils.to_categorical(y_test, num_classes=None)
+    y_train = tf.keras.utils.to_categorical(y_train, num_classes=None)
+    y_test = tf.keras.utils.to_categorical(y_test, num_classes=None)
 
     return x_train, y_train, x_test, y_test
