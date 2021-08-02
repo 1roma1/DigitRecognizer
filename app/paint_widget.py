@@ -8,7 +8,7 @@ class PaintWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
-        self.setGeometry(20, 20, 400, 400)
+        self.setGeometry(20, 20, parent.size().width()/2, parent.size().height()/2)
         self.image = QImage(self.size(), QImage.Format_RGB32)  
         self.image.fill(Qt.white)
         self.drawing = False
@@ -28,6 +28,7 @@ class PaintWidget(QWidget):
             painter.drawLine(self.lastPoint, event.pos())
             self.lastPoint = event.pos()
             self.update()
+            
         
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -37,9 +38,11 @@ class PaintWidget(QWidget):
         canvasPainter = QPainter(self)
         canvasPainter.drawImage(self.rect(), self.image, self.image.rect())
 
-    def grabImage(self):
-        '''  Converts a QImage into an opencv MAT format  '''
+    def resizeEvent(self, event):
+        self.image = self.image.scaled(self.size(), Qt.AspectRatioMode.IgnoreAspectRatio)
+        return super().resizeEvent(event)
 
+    def grabImage(self):
         image = self.image.convertToFormat(QImage.Format.Format_RGBA8888)
 
         width = image.width()

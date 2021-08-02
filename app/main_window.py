@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QPushButton, 
     QLabel
 )
+from PyQt5.QtGui import QFont
 
 from app.paint_widget import PaintWidget
 from app.digit_classifier import DigitClassifier
@@ -26,7 +27,7 @@ class MainWindow(QMainWindow):
 
     def setUI(self):
         self.paintWidgetLayout = QVBoxLayout()
-        self.paintWidget = PaintWidget()
+        self.paintWidget = PaintWidget(self)
         self.clearButton = QPushButton("Clear")
         self.paintWidgetLayout.addWidget(self.paintWidget)
         self.paintWidgetLayout.addWidget(self.clearButton)
@@ -35,6 +36,8 @@ class MainWindow(QMainWindow):
         self.predictionLayout= QVBoxLayout()
         self.numberLabel = QLabel()
         self.accuracyLabel = QLabel()
+        self.numberLabel.setFont(QFont("Times", 14))
+        self.accuracyLabel.setFont(QFont("Times", 14))
         self.predictButton = QPushButton("Predict")
         self.predictionLayout.addWidget(self.numberLabel)
         self.predictionLayout.addWidget(self.accuracyLabel)
