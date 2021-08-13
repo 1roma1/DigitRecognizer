@@ -1,12 +1,12 @@
+import os
 import cv2
 import numpy as np
 import tensorflow as tf
-
 from scipy import ndimage
 
 class DigitClassifier:
     def __init__(self):
-        self.model = tf.keras.models.load_model('model/model.h5')
+        self.model = tf.keras.models.load_model("../models/model.h5")
 
     def predict(self, image):
         image = self.prepareImage(image)
