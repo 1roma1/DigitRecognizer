@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont
 
-from app.gui.paint_widget import PaintWidget
-from app.gui.digit_classifier import DigitClassifier
+from gui.paint_widget import PaintWidget
+from gui.digit_classifier import DigitClassifier
 
 class MainWindow(QMainWindow):
     def __init__(self):

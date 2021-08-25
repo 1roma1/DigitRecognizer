@@ -2,7 +2,7 @@ import numpy as np
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QImage, QPainter, QPen
-from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtCore import QPoint, Qt, QSize
 
 class PaintWidget(QWidget):
     def __init__(self, parent=None):
@@ -43,11 +43,12 @@ class PaintWidget(QWidget):
         return super().resizeEvent(event)
 
     def grabImage(self):
-        image = self.image.convertToFormat(QImage.Format.Format_RGBA8888)
+        image = self.image.scaled(QSize(380, 540), Qt.AspectRatioMode.IgnoreAspectRatio)\
+            .convertToFormat(QImage.Format.Format_RGBA8888)
 
         width = image.width()
         height = image.height()
-
+        print(width, height)
         ptr = image.bits()
         ptr.setsize(height * width * 4)
         arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
