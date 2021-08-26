@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, 
     QVBoxLayout,
     QPushButton, 
-    QLabel
+    QLabel,
+    QComboBox
 )
 from PyQt5.QtGui import QFont
 
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow):
         self.centralWidget.setLayout(self.centralLayout)
         self.setUI()
 
-        self.classifier = DigitClassifier()
+        self.classifier = DigitClassifier("CNN")
 
     def setUI(self):
         self.paintWidgetLayout = QVBoxLayout()
@@ -37,12 +38,14 @@ class MainWindow(QMainWindow):
         self.numberLabel = QLabel()
         self.accuracyLabel = QLabel()
         self.numberLabel.setFont(QFont("Times", 14))
-        self.accuracyLabel.setFont(QFont("Times", 14))
+        self.modelSelector = QComboBox()
+        self.modelSelector.addItems(["CNN", "KNN"])
         self.predictButton = QPushButton("Predict")
         self.predictionLayout.addWidget(self.numberLabel)
-        self.predictionLayout.addWidget(self.accuracyLabel)
+        self.predictionLayout.addWidget(self.modelSelector)
         self.predictionLayout.addWidget(self.predictButton)
         self.predictButton.clicked.connect(self.classify)
+        self.modelSelector.activated[str].connect(self.selectModel)
         
         self.centralLayout.addLayout(self.paintWidgetLayout)
         self.centralLayout.addLayout(self.predictionLayout)
@@ -51,9 +54,11 @@ class MainWindow(QMainWindow):
         self.paintWidget.clear()
         self.paintWidget.show()
 
+    def selectModel(self, text):
+        self.classifier = DigitClassifier(text)
+
     def classify(self):
         image = self.paintWidget.grabImage()        
-        digit, acc = self.classifier.predict(image)
+        digit = self.classifier.predict(image)
 
         self.numberLabel.setText("Number: " + str(digit))
-        self.accuracyLabel.setText("Accuracy: " + str(int(acc*100)))

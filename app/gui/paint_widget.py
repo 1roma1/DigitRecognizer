@@ -43,12 +43,13 @@ class PaintWidget(QWidget):
         return super().resizeEvent(event)
 
     def grabImage(self):
-        image = self.image.scaled(QSize(380, 540), Qt.AspectRatioMode.IgnoreAspectRatio)\
+        image = self.image.scaled(QSize(self.width()/2, self.height()/2),
+                                  Qt.AspectRatioMode.IgnoreAspectRatio)\
             .convertToFormat(QImage.Format.Format_RGBA8888)
 
         width = image.width()
         height = image.height()
-        print(width, height)
+
         ptr = image.bits()
         ptr.setsize(height * width * 4)
         arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))

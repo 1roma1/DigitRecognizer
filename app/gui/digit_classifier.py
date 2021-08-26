@@ -1,23 +1,30 @@
-import os
 import cv2
+import joblib
 import numpy as np
 import tensorflow as tf
 from scipy import ndimage
 
-import matplotlib.pyplot as plt
 
 class DigitClassifier:
-    def __init__(self):
-        self.model = tf.keras.models.load_model("../models/model.h5")
+    def __init__(self, model):
+        self.model_name = model
+
+        if self.model_name == "CNN":
+            self.model = tf.keras.models.load_model("../models/cnn_model.h5")
+        elif self.model_name == "KNN":
+            self.model = joblib.load("../models/knn_model.joblib")
 
     def predict(self, image):
         image = self.prepareImage(image)
         image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
-        image = image.reshape(1,28,28, 1)       
+        if self.model_name == "CNN":
+            image = image.reshape(1,28,28, 1)
+        else:
+            image = image.reshape(1, 28*28)
 
-        res = self.model.predict([image])[0]
-        return np.argmax(res), max(res)
+        res = self.model.predict(image)
+        return np.argmax(res)
 
     def prepareImage(self, image):
         image = cv2.bitwise_not(image)
@@ -61,7 +68,7 @@ class DigitClassifier:
         gray = cv2.resize(gray, (28, 28))
         return gray       
         
-    def getBestShift(self,img):
+    def getBestShift(self, img):
         cy, cx = ndimage.measurements.center_of_mass(img)
 
         rows, cols = img.shape
@@ -70,7 +77,7 @@ class DigitClassifier:
 
         return shiftx, shifty
 
-    def shift(self,img, sx, sy):
+    def shift(self, img, sx, sy):
         rows, cols = img.shape
         M = np.float32([[1, 0, sx], [0, 1, sy]])
         shifted = cv2.warpAffine(img, M, (cols, rows))
