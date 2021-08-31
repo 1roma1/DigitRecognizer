@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from app.models.data.data_preprocessing import preproc_mnist
+from app.models.dataset.data_preprocessing import preproc_mnist
 
 batch_size = 128
 epochs = 15
@@ -33,7 +33,7 @@ model.compile(
 history = model.fit(x_train, y_train, batch_size=batch_size, 
                     epochs=epochs, validation_split=0.1)
 
-model.save('../../models/cnn_model.h5')
+model.save('trained/cnn_model.h5')
 
 score = model.evaluate(x_test, y_test, verbose=0)
 print("Test loss:", score[0])

@@ -10,9 +10,9 @@ class DigitClassifier:
         self.model_name = model
 
         if self.model_name == "CNN":
-            self.model = tf.keras.models.load_model("../models/cnn_model.h5")
+            self.model = tf.keras.models.load_model("assets/trained/cnn_model.h5")
         elif self.model_name == "KNN":
-            self.model = joblib.load("../models/knn_model.joblib")
+            self.model = joblib.load("assets/trained/knn_model.joblib")
 
     def predict(self, image):
         image = self.prepareImage(image)
