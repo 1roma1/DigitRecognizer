@@ -6,24 +6,21 @@ from scipy import ndimage
 
 
 class DigitClassifier:
-    def __init__(self, model):
-        self.model_name = model
+    def __init__(self):
+        self.nn_model = tf.keras.models.load_model("models/trained/cnn_model.h5")
+        self.knn_model = joblib.load("models/trained/knn_model.joblib")
 
-        if self.model_name == "CNN":
-            self.model = tf.keras.models.load_model("assets/trained/cnn_model.h5")
-        elif self.model_name == "KNN":
-            self.model = joblib.load("assets/trained/knn_model.joblib")
-
-    def predict(self, image):
+    def predict(self, image, model_name):
         image = self.prepareImage(image)
         image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
-        if self.model_name == "CNN":
+        if model_name == "CNN":
             image = image.reshape(1,28,28, 1)
+            res = self.nn_model.predict(image)
         else:
             image = image.reshape(1, 28*28)
+            res = self.knn_model.predict(image)
 
-        res = self.model.predict(image)
         return np.argmax(res)
 
     def prepareImage(self, image):
@@ -82,3 +79,12 @@ class DigitClassifier:
         M = np.float32([[1, 0, sx], [0, 1, sy]])
         shifted = cv2.warpAffine(img, M, (cols, rows))
         return shifted
+
+
+def model_process(conn, val):
+    classifier = DigitClassifier()
+    conn.send(1)
+    while True:
+        img, model_name = conn.recv()
+        prediction = classifier.predict(img, model_name)
+        val.value = prediction

@@ -5,16 +5,18 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QPushButton, 
     QLabel,
-    QComboBox
+    QComboBox,
 )
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QTimer
 
-from gui.paint_widget import PaintWidget
-from gui.digit_classifier import DigitClassifier
+from .paint_widget import PaintWidget
+
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, parent, prediction):
         QMainWindow.__init__(self)
+        self.model_name = "CNN"
         self.setWindowTitle("Digit Recognizer")
 
         self.centralWidget = QWidget()
@@ -24,26 +26,36 @@ class MainWindow(QMainWindow):
         self.centralWidget.setLayout(self.centralLayout)
         self.setUI()
 
-        self.classifier = DigitClassifier("CNN")
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.drawText)
+        self.timer.start(100)
+
+        self.parent = parent
+        self.prediction = prediction
 
     def setUI(self):
         self.paintWidgetLayout = QVBoxLayout()
+
         self.paintWidget = PaintWidget(self)
         self.clearButton = QPushButton("Clear")
+
         self.paintWidgetLayout.addWidget(self.paintWidget)
         self.paintWidgetLayout.addWidget(self.clearButton)
+
         self.clearButton.clicked.connect(self.clearCanvas)
 
         self.predictionLayout= QVBoxLayout()
+
         self.numberLabel = QLabel()
-        self.accuracyLabel = QLabel()
         self.numberLabel.setFont(QFont("Times", 14))
         self.modelSelector = QComboBox()
         self.modelSelector.addItems(["CNN", "KNN"])
         self.predictButton = QPushButton("Predict")
+
         self.predictionLayout.addWidget(self.numberLabel)
         self.predictionLayout.addWidget(self.modelSelector)
         self.predictionLayout.addWidget(self.predictButton)
+
         self.predictButton.clicked.connect(self.classify)
         self.modelSelector.activated[str].connect(self.selectModel)
         
@@ -55,10 +67,14 @@ class MainWindow(QMainWindow):
         self.paintWidget.show()
 
     def selectModel(self, text):
-        self.classifier = DigitClassifier(text)
+        self.model_name = text
 
     def classify(self):
-        image = self.paintWidget.grabImage()        
-        digit = self.classifier.predict(image)
+        image = self.paintWidget.grabImage()
+        self.parent.send((image, self.model_name))
 
-        self.numberLabel.setText("Number: " + str(digit))
+    def drawText(self):
+        if self.prediction.value >= 0:
+            self.numberLabel.setText("Number: " + str(self.prediction.value))
+        else:
+            self.numberLabel.setText("")

@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QImage, QPainter, QPen
 from PyQt5.QtCore import QPoint, Qt, QSize
 
+
 class PaintWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
