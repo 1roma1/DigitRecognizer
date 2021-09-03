@@ -6,14 +6,14 @@ from recognition.digit_classifier import model_process
 
 if __name__ == '__main__':
     parent, child = mp.Pipe()
-    val = mp.Value('i', -1)
+    prediction = mp.Value('i', -1)
 
-    p = mp.Process(target=model_process, args=(child, val))
+    p = mp.Process(target=model_process, args=(child, prediction))
     p.start()
     parent.recv()
 
     app = QApplication(sys.argv)
-    ex = MainWindow(parent, val)
+    ex = MainWindow(parent, prediction)
     ex.resize(800, 600)
     ex.show()
     app.exec_()

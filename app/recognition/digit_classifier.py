@@ -15,10 +15,10 @@ class DigitClassifier:
         image = cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
         if model_name == "CNN":
-            image = image.reshape(1,28,28, 1)
+            image = image.reshape(1, 28, 28, 1)
             res = self.nn_model.predict(image)
         else:
-            image = image.reshape(1, 28*28)
+            image = image.reshape(1, 28 * 28)
             res = self.knn_model.predict(image)
 
         return np.argmax(res)
@@ -26,8 +26,6 @@ class DigitClassifier:
     def prepareImage(self, image):
         image = cv2.bitwise_not(image)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        (thresh, gray) = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
         while np.sum(gray[0]) == 0:
             gray = gray[1:]
@@ -58,13 +56,13 @@ class DigitClassifier:
         colsPadding = (int(np.math.ceil((28 - cols) / 2.0)), int(np.math.ceil((28 - cols) / 2.0)))
         rowsPadding = (int(np.math.ceil((28 - rows) / 2.0)), int(np.math.ceil((28 - rows) / 2.0)))
         gray = np.lib.pad(gray, (rowsPadding, colsPadding), 'constant')
-        
+
         shiftx, shifty = self.getBestShift(gray)
         shifted = self.shift(gray, shiftx, shifty)
-        gray = shifted 
+        gray = shifted
         gray = cv2.resize(gray, (28, 28))
-        return gray       
-        
+        return gray
+
     def getBestShift(self, img):
         cy, cx = ndimage.measurements.center_of_mass(img)
 
@@ -76,8 +74,8 @@ class DigitClassifier:
 
     def shift(self, img, sx, sy):
         rows, cols = img.shape
-        M = np.float32([[1, 0, sx], [0, 1, sy]])
-        shifted = cv2.warpAffine(img, M, (cols, rows))
+        m = np.float32([[1, 0, sx], [0, 1, sy]])
+        shifted = cv2.warpAffine(img, m, (cols, rows))
         return shifted
 
 

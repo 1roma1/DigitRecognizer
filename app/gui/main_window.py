@@ -14,7 +14,7 @@ from .paint_widget import PaintWidget
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent, prediction):
+    def __init__(self, connection, prediction):
         QMainWindow.__init__(self)
         self.model_name = "CNN"
         self.setWindowTitle("Digit Recognizer")
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         self.timer.timeout.connect(self.drawText)
         self.timer.start(100)
 
-        self.parent = parent
+        self.connection = connection
         self.prediction = prediction
 
     def setUI(self):
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
 
     def classify(self):
         image = self.paintWidget.grabImage()
-        self.parent.send((image, self.model_name))
+        self.connection.send((image, self.model_name))
 
     def drawText(self):
         if self.prediction.value >= 0:
