@@ -1,3 +1,4 @@
+from threading import Thread
 from PyQt5.QtWidgets import (
     QMainWindow, 
     QWidget, 
@@ -8,15 +9,32 @@ from PyQt5.QtWidgets import (
     QComboBox,
 )
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
 from .paint_widget import PaintWidget
+from recognition.digit_classifier import DigitClassifier
+
+class PredictionThread(QThread):
+
+    predict = pyqtSignal(str)
+
+    def __init__(self, clf, parent=None):
+        QThread.__init__(self, parent)
+        self.clf = clf
+
+    def setData(self, img, modelType):
+        self.img = img
+        self.modelType = modelType
+
+    def run(self):
+        prediction = self.clf.predict(self.img, self.modelType)
+        self.predict.emit(str(prediction))
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, connection, prediction):
+    def __init__(self):
         QMainWindow.__init__(self)
-        self.model_name = "CNN"
+        self.modelType = "CNN"
         self.setWindowTitle("Digit Recognizer")
 
         self.centralWidget = QWidget()
@@ -26,12 +44,9 @@ class MainWindow(QMainWindow):
         self.centralWidget.setLayout(self.centralLayout)
         self.setUI()
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.drawText)
-        self.timer.start(100)
+        self.clf = DigitClassifier()
+        self.predictionThread = PredictionThread(self.clf)
 
-        self.connection = connection
-        self.prediction = prediction
 
     def setUI(self):
         self.paintWidgetLayout = QVBoxLayout()
@@ -67,14 +82,14 @@ class MainWindow(QMainWindow):
         self.paintWidget.show()
 
     def selectModel(self, text):
-        self.model_name = text
+        self.modelType = text
 
     def classify(self):
         image = self.paintWidget.grabImage()
-        self.connection.send((image, self.model_name))
+        self.predictionThread.predict.connect(self.setPredict)
+        self.predictionThread.setData(image, self.modelType)
+        self.predictionThread.start()
 
-    def drawText(self):
-        if self.prediction.value >= 0:
-            self.numberLabel.setText("Number: " + str(self.prediction.value))
-        else:
-            self.numberLabel.setText("")
+    @pyqtSlot(str)
+    def setPredict(self, prediction):
+        self.numberLabel.setText("Number: " + prediction)

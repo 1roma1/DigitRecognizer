@@ -29,7 +29,6 @@ class PaintWidget(QWidget):
             painter.drawLine(self.lastPoint, event.pos())
             self.lastPoint = event.pos()
             self.update()
-            
         
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:

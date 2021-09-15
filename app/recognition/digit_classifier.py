@@ -7,8 +7,8 @@ from scipy import ndimage
 
 class DigitClassifier:
     def __init__(self):
-        self.nn_model = tf.keras.models.load_model("models/trained/cnn_model.h5")
-        self.knn_model = joblib.load("models/trained/knn_model.joblib")
+        self.nnModel = tf.keras.models.load_model("models/trained/cnn_model.h5")
+        self.knnModel = joblib.load("models/trained/knn_model.joblib")
 
     def predict(self, image, model_name):
         image = self.prepareImage(image)
@@ -16,10 +16,10 @@ class DigitClassifier:
 
         if model_name == "CNN":
             image = image.reshape(1, 28, 28, 1)
-            res = self.nn_model.predict(image)
+            res = self.nnModel.predict(image)
         else:
             image = image.reshape(1, 28 * 28)
-            res = self.knn_model.predict(image)
+            res = self.knnModel.predict(image)
 
         return np.argmax(res)
 
@@ -77,12 +77,3 @@ class DigitClassifier:
         m = np.float32([[1, 0, sx], [0, 1, sy]])
         shifted = cv2.warpAffine(img, m, (cols, rows))
         return shifted
-
-
-def model_process(conn, val):
-    classifier = DigitClassifier()
-    conn.send(1)
-    while True:
-        img, model_name = conn.recv()
-        prediction = classifier.predict(img, model_name)
-        val.value = prediction
